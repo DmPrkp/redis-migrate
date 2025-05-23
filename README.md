@@ -61,3 +61,38 @@ exports.down = [
   }
 ];
 ```
+
+## Example Runtime Usage
+
+```javascript
+const redisMigrator = require('redis-migrate');
+const redis = require('redis');
+
+const dbClient = redis.createClient({
+  url: 'redis://localhost:6379'
+});
+
+db.on('error', err => console.error(`Redis connect error: ${err}`));
+
+db.on('connect', () => {
+  // Run the "up" migration
+  redisMigrator.up(dbClient, './path/to/migration/folder', 'migration-file.js', err => console.error(err));
+
+  // Optionally, run the "down" migration to roll back the change
+  redisMigrator.down(dbClient, './path/to/migration/folder', 'migration-file.js', err => console.error(err));
+});
+```
+
+### or async/await example
+
+```javascript
+// Run the "up" migration
+const upMigrationFunc = async (file) =>
+  await new Promise((resolve, reject) => {
+    redisMigrator.up(dbClient, './path/to/migration/folder', file, err => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+
+```
